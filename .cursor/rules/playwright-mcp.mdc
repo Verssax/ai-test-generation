@@ -1,0 +1,45 @@
+---
+description: Rules for generating Playwright tests for modivo.ua via Playwright MCP
+globs: tests/**/*.spec.js
+alwaysApply: true
+---
+
+# Playwright MCP test generation rules (modivo.ua)
+
+## Exploration
+1. Always open https://modivo.ua with Playwright MCP and explore the real page BEFORE writing code. Never guess selectors.
+2. The site shows a cookie consent banner. Every test must accept or close it first (put it in beforeEach).
+
+## Code style
+3. Language: JavaScript with @playwright/test. Match the import style used in playwright.config.js. No TypeScript.
+4. Use baseURL from config: page.goto('/') instead of full URLs.
+5. Selector priority: getByRole > getByLabel > getByPlaceholder > getByText > data-testid. No XPath, no auto-generated classes.
+6. No hard waits; use web-first assertions.
+7. No duplicated code: shared steps go into BasePage or a fixture.
+8. Meaningful names; no magic strings — test data in tests/data/testData.js.
+9. Test names follow "should <result> when <action>" and map to the test case ID (e.g. test('TC1: should show products when searching "кросівки"')).
+10. Small methods (one responsibility), no commented-out code, no console.log.
+
+## Page Object Model (mandatory)
+11. All page interactions live in page classes under pages/. Test files contain NO selectors and NO page.locator/getBy calls.
+12. One class per page or major component: BasePage, HomePage, SearchResultsPage, CategoryPage, ProductPage, CartPage.
+13. BasePage holds shared logic: constructor(page), goto(path), acceptCookies(), header/search access.
+14. Locators are defined once in the constructor as readonly properties (this.searchInput = page.getByRole(...)).
+15. Page methods describe user actions in business language (search(query), addToCart(), selectFirstAvailableSize()) and return data or the next page object when navigation happens.
+16. Assertions (expect) stay in test files, not in page classes. Exception: small waitFor* helpers that ensure the page is loaded.
+17. File naming: PascalCase class, one class per file, e.g. pages/CartPage.js, exported with module.exports / export matching the project style.
+
+## Test data and stability
+18. Never hardcode specific product names or prices; the catalog changes. Select products dynamically (e.g. the first product in a listing).
+19. The site is in Ukrainian. Assert on Ukrainian UI text or on URL/element state.
+20. Each test is independent: no shared state between tests.
+21. Every test must have at least one meaningful assertion on the outcome.
+
+## Safety (live production site)
+22. NEVER place a real order, submit payment, or register a real account.
+23. Use obviously fake data for negative tests (e.g. test.invalid@example.com).
+
+## Workflow
+24. Save files to tests/cursor/ (Cursor) or tests/claude/ (Claude), named <feature>.spec.js.
+25. After writing, run `npx playwright test <file>` and fix failures until the test passes (if you can run commands).
+26. Do not modify playwright.config.js or other tests unless asked.
