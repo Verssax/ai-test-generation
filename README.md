@@ -43,7 +43,6 @@ ai-test-generation/
 │   ├── e2e/                      # Cypress specs
 │   ├── pages/                    # Cypress page objects
 │   └── support/                  # Cypress support files
-├── docs/TEST_CASES.md            # Test cases (ISTQB format)
 ├── prompts.md                    # Prompts used for test generation
 ├── playwright.config.js
 ├── cypress.config.js
